@@ -1,0 +1,116 @@
+package com.miaoubich.banking.domain;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Version;
+
+@Entity
+public class Account {
+
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
+	@Column(nullable = false, unique = true)
+	private String accountNumber;
+	@Column(nullable = false)
+	private BigDecimal balance;
+	@Enumerated(EnumType.STRING)
+	private AccountType AccountType;
+	@Enumerated(EnumType.STRING)
+	private AccountStatus accountStatus;
+	@CreationTimestamp
+	private LocalDate createdAt;
+	@UpdateTimestamp
+	private LocalDate updatedAt;
+	
+	@Version
+	private Long version;
+	
+	public Account() {}
+	
+	public Account(String accountNumber, BigDecimal balance, AccountType accountType, AccountStatus accountStatus, LocalDate createdAt,
+			LocalDate updatedAt, Long version) {
+		this.accountNumber = accountNumber;
+		this.balance = balance;
+		AccountType = accountType;
+		this.accountStatus = accountStatus;
+		this.createdAt = createdAt;
+		this.updatedAt = updatedAt;
+		this.version = version;
+	}
+
+	public String getAccountNumber() {
+		return accountNumber;
+	}
+
+	public void setAccountNumber(String accountNumber) {
+		this.accountNumber = accountNumber;
+	}
+
+	public BigDecimal getBalance() {
+		return balance;
+	}
+
+	public void setBalance(BigDecimal balance) {
+		this.balance = balance;
+	}
+
+	public AccountType getAccountType() {
+		return AccountType;
+	}
+
+	public void setAccountType(AccountType accountType) {
+		AccountType = accountType;
+	}
+
+	public LocalDate getCreatedAt() {
+		return createdAt;
+	}
+
+	public void setCreatedAt(LocalDate createdAt) {
+		this.createdAt = createdAt;
+	}
+
+	public LocalDate getUpdatedAt() {
+		return updatedAt;
+	}
+
+	public void setUpdatedAt(LocalDate updatedAt) {
+		this.updatedAt = updatedAt;
+	}
+
+	public AccountStatus getAccountStatus() {
+		return accountStatus;
+	}
+
+	public void setAccountStatus(AccountStatus accountStatus) {
+		this.accountStatus = accountStatus;
+	}
+
+	public Long getVersion() {
+		return version;
+	}
+
+	public void setVersion(Long version) {
+		this.version = version;
+	}
+	
+	@Override
+	public String toString() {
+		return "Account [id=" + id + ", accountNumber=" + accountNumber + ", balance=" + balance + ", AccountType="
+				+ AccountType + ", createdAt=" + createdAt + ", updatedAt=" + updatedAt + ", accountStatus="
+				+ accountStatus + ", version=" + version +"]";
+	}
+	
+}

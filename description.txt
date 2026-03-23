@@ -1,0 +1,25 @@
+Service-by-service breakdown
+Infrastructure services
+Discovery service (Eureka) — Every microservice registers itself here on startup with its hostname and port. When service A wants to call service B, it asks Eureka for B's current address instead of hardcoding it. This makes scaling out (running 3 instances of transaction-service) completely transparent to callers.
+API Gateway — The single entry point for all client traffic. It handles routing (which path goes to which service), authentication filter (validates JWT tokens issued by Keycloak before requests reach your services), rate limiting, and request/response transformation. With Spring Cloud Gateway, routes are defined declaratively in application.yml.
+Auth service (OAuth2 + Keycloak) — Keycloak acts as the Authorization Server. Clients authenticate here and receive a JWT access token. Your services act as Resource Servers — they validate the token's signature using Keycloak's public key without ever touching Keycloak again on each request. The auth-service wraps Keycloak with any custom logic (user provisioning, role mapping, etc.).
+
+Core business services
+Account service — Owns everything about a bank account: creation, retrieval, closure, balance inquiries, and account metadata. It exposes REST APIs consumed by the gateway and publishes events to Kafka when account state changes (e.g., account.created, account.closed).
+Transaction service — Handles the movement of money: deposits, withdrawals, and transfers. This is the most critical service — it must guarantee atomicity (money doesn't disappear between debit and credit). It publishes transaction.initiated and transaction.completed events to Kafka, which downstream services react to.
+Fraud detection service — Consumes transaction.initiated events from Kafka and runs rules/scoring logic before (or immediately after) a transaction completes. It can publish fraud.alert events and trigger holds on accounts. Because it's event-driven, it doesn't add latency to the synchronous transaction path.
+Notification service — A pure Kafka consumer. It listens to events from all other services (transaction.completed, fraud.alert, account.created) and dispatches notifications via email, SMS, or push. It has no REST API — it only speaks Kafka.
+Reporting service — Aggregates data from multiple services to generate statements, exports, and analytics. It may maintain its own read-optimized data store (CQRS pattern), built by consuming Kafka events over time.
+
+Shared module
+banking-common — A Maven/Gradle library (not a deployable service) that all services depend on. It typically contains shared DTOs, custom exception types, validation utilities, common security configuration, and Kafka event schemas. This prevents duplication but requires discipline — only truly shared, stable code belongs here.
+
+Messaging layer
+Apache Kafka — The backbone of async communication. Instead of service A calling service B directly (tight coupling), A publishes an event and B reacts to it independently. This gives you resilience (B can be down and catch up later), decoupling, and a complete audit log of everything that happened in the system. Key topics will be things like transactions, fraud-alerts, notifications, account-events.
+
+Observability
+Spring Boot Actuator — Exposes /actuator/health, /actuator/metrics, /actuator/info, and more on every service. The gateway can use the health endpoint for load balancing, and Kubernetes can use it for liveness/readiness probes. With Micrometer, metrics flow to Prometheus and visualize in Grafana. Distributed tracing (Micrometer Tracing + Zipkin/Tempo) lets you follow a single request across all services using a trace ID.
+
+Key architectural patterns at play
+The system naturally implements several important patterns: Database-per-service (each service owns its schema, preventing tight coupling at the data layer), Event-driven architecture (Kafka for async flows), CQRS (reporting service maintains its own read model), Circuit Breaker (Spring Cloud Circuit Breaker wraps inter-service HTTP calls to prevent cascade failures), and API Gateway pattern (single ingress with cross-cutting concerns applied centrally).
+Would you like me to go deeper on any specific service, the Kafka topic design, the OAuth2 token flow, or the inter-service communication patterns? Sonnet 4.6Extended
