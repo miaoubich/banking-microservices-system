@@ -42,6 +42,8 @@ public class AccountServiceImpl implements AccountService {
 	    account.setAccountNumber(generateAccountNumber());
 	    account.setAccountStatus(AccountStatus.ACTIVE);
 	    account.setClientId(clientId);
+	    
+	    logger.info("Creating account for clientId: {} with accountNumber: {}", clientId, account.getAccountNumber());
 
 	    accountRepository.save(account);
 
@@ -69,11 +71,19 @@ public class AccountServiceImpl implements AccountService {
 	    return accountMapper.toResponse(account);
 	}
 
-	public String generateAccountNumber() {
-    String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
-    String random = String.format("%08d", new SecureRandom().nextInt(100_000_000));
-    return timestamp + random;
-}
+	@Transactional
+	public CreateAccountResponse updateAccountStatus(Long accountId, AccountStatus newStatus) {
+		Account account = accountRepository.findById(accountId)
+				.orElseThrow(() -> new RuntimeException("Account not found with id: " + accountId));
+		account.setAccountStatus(newStatus);
+		logger.info("Updating account {} status to {}", accountId, newStatus);
+		return accountMapper.toResponse(accountRepository.save(account));
+	}
 
-	
+	public String generateAccountNumber() {
+	    String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+	    String random = String.format("%08d", new SecureRandom().nextInt(100_000_000));
+	    return timestamp + random;
+	}
+
 }

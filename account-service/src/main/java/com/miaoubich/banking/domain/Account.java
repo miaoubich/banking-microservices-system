@@ -2,6 +2,7 @@ package com.miaoubich.banking.domain;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -30,9 +31,9 @@ public class Account {
 	@Enumerated(EnumType.STRING)
 	private AccountStatus accountStatus;
 	@CreationTimestamp
-	private LocalDate createdAt;
+	private LocalDateTime createdAt;
 	@UpdateTimestamp
-	private LocalDate updatedAt;
+	private LocalDateTime updatedAt;
 	@Column(nullable = false)
 	private Long clientId;
 	
@@ -41,8 +42,8 @@ public class Account {
 	
 	public Account() {}
 	
-	public Account(String accountNumber, BigDecimal balance, AccountType accountType, AccountStatus accountStatus, LocalDate createdAt,
-			LocalDate updatedAt, Long clientId, Long version) {
+	public Account(String accountNumber, BigDecimal balance, AccountType accountType, AccountStatus accountStatus, LocalDateTime createdAt,
+			LocalDateTime updatedAt, Long clientId, Long version) {
 		this.accountNumber = accountNumber;
 		this.balance = balance;
 		AccountType = accountType;
@@ -81,19 +82,19 @@ public class Account {
 		AccountType = accountType;
 	}
 
-	public LocalDate getCreatedAt() {
+	public LocalDateTime getCreatedAt() {
 		return createdAt;
 	}
 
-	public void setCreatedAt(LocalDate createdAt) {
+	public void setCreatedAt(LocalDateTime createdAt) {
 		this.createdAt = createdAt;
 	}
 
-	public LocalDate getUpdatedAt() {
+	public LocalDateTime getUpdatedAt() {
 		return updatedAt;
 	}
 
-	public void setUpdatedAt(LocalDate updatedAt) {
+	public void setUpdatedAt(LocalDateTime updatedAt) {
 		this.updatedAt = updatedAt;
 	}
 

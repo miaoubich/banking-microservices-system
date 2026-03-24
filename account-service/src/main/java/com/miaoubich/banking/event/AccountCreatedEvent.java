@@ -1,7 +1,7 @@
 package com.miaoubich.banking.event;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import com.miaoubich.banking.domain.AccountStatus;
 import com.miaoubich.banking.domain.AccountType;
@@ -14,12 +14,12 @@ public class AccountCreatedEvent {
 	private AccountType accountType;
 	private AccountStatus accountStatus;
 	private Long clientId;
-	private LocalDate createdAt;
+	private LocalDateTime createdAt;
 
 	public AccountCreatedEvent() {}
 
 	public AccountCreatedEvent(Long accountId, String accountNumber, BigDecimal balance, AccountType accountType,
-			AccountStatus accountStatus, Long clientId, LocalDate createdAt) {
+			AccountStatus accountStatus, Long clientId, LocalDateTime createdAt) {
 		this.accountId = accountId;
 		this.accountNumber = accountNumber;
 		this.balance = balance;
@@ -77,11 +77,11 @@ public class AccountCreatedEvent {
 		this.clientId = clientId;
 	}
 
-	public LocalDate getCreatedAt() {
+	public LocalDateTime getCreatedAt() {
 		return createdAt;
 	}
 
-	public void setCreatedAt(LocalDate createdAt) {
+	public void setCreatedAt(LocalDateTime createdAt) {
 		this.createdAt = createdAt;
 	}
 }
