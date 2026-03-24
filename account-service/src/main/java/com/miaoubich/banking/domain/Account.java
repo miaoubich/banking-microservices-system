@@ -33,6 +33,8 @@ public class Account {
 	private LocalDate createdAt;
 	@UpdateTimestamp
 	private LocalDate updatedAt;
+	@Column(nullable = false)
+	private Long clientId;
 	
 	@Version
 	private Long version;
@@ -40,16 +42,21 @@ public class Account {
 	public Account() {}
 	
 	public Account(String accountNumber, BigDecimal balance, AccountType accountType, AccountStatus accountStatus, LocalDate createdAt,
-			LocalDate updatedAt, Long version) {
+			LocalDate updatedAt, Long clientId, Long version) {
 		this.accountNumber = accountNumber;
 		this.balance = balance;
 		AccountType = accountType;
 		this.accountStatus = accountStatus;
 		this.createdAt = createdAt;
 		this.updatedAt = updatedAt;
+		this.clientId = clientId;
 		this.version = version;
 	}
 
+	public Long getId() {
+		return id;
+	}
+	
 	public String getAccountNumber() {
 		return accountNumber;
 	}
@@ -98,6 +105,14 @@ public class Account {
 		this.accountStatus = accountStatus;
 	}
 
+	public Long getClientId() {
+		return clientId;
+	}
+
+	public void setClientId(Long clientId) {
+		this.clientId = clientId;
+	}
+
 	public Long getVersion() {
 		return version;
 	}
@@ -110,7 +125,7 @@ public class Account {
 	public String toString() {
 		return "Account [id=" + id + ", accountNumber=" + accountNumber + ", balance=" + balance + ", AccountType="
 				+ AccountType + ", createdAt=" + createdAt + ", updatedAt=" + updatedAt + ", accountStatus="
-				+ accountStatus + ", version=" + version +"]";
+				+ accountStatus + ", clientId=" + clientId + ", version=" + version +"]";
 	}
 	
 }
