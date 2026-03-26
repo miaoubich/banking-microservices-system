@@ -4,7 +4,9 @@ import java.util.List;
 
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.resource.UsersResource;
+import org.keycloak.representations.idm.ClientRepresentation;
 import org.keycloak.representations.idm.CredentialRepresentation;
+import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +22,6 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import com.miaoubich.banking.domain.User;
-import com.miaoubich.banking.domain.UserRole;
 import com.miaoubich.banking.dto.AuthResponse;
 import com.miaoubich.banking.dto.LoginRequest;
 import com.miaoubich.banking.dto.RegisterRequest;
@@ -62,7 +63,7 @@ public class AuthServiceImpl implements AuthService {
 			throw new RuntimeException("Email already registered: " + request.getEmail());
 		}
 
-		// Create user in Keycloak
+		// Create user in Keycloak server
 		CredentialRepresentation credential = new CredentialRepresentation();
 		credential.setType(CredentialRepresentation.PASSWORD);
 		credential.setValue(request.getPassword());
@@ -89,6 +90,18 @@ public class AuthServiceImpl implements AuthService {
 
 		logger.info("User created in Keycloak with id: {}", keycloakId);
 
+		// Assign role in Keycloak (client level)
+		ClientRepresentation clientRepresentation = keycloak.realm(realm).clients()
+				.findByClientId(clientId).get(0);
+		RoleRepresentation roleRepresentation = keycloak.realm(realm)
+				.clients().get(clientRepresentation.getId())
+				.roles().get(request.getRole().toKeycloakRole()).toRepresentation();
+		keycloak.realm(realm).users().get(keycloakId)
+				.roles().clientLevel(clientRepresentation.getId())
+				.add(List.of(roleRepresentation));
+
+		logger.info("Role {} assigned to user in Keycloak", request.getRole().toKeycloakRole());
+
 		// Save user to DB
 		User user = new User(
 				request.getFirstName(),
@@ -96,7 +109,7 @@ public class AuthServiceImpl implements AuthService {
 				request.getEmail(),
 				request.getPhone(),
 				keycloakId,
-				UserRole.client_user
+				request.getRole()
 		);
 		userRepository.save(user);
 

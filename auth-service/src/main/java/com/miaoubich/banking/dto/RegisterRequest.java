@@ -1,7 +1,10 @@
 package com.miaoubich.banking.dto;
 
+import com.miaoubich.banking.domain.UserRole;
+
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 public class RegisterRequest {
 
@@ -20,6 +23,9 @@ public class RegisterRequest {
 
 	@NotBlank
 	private String password;
+
+	@NotNull
+	private UserRole role;
 
 	public RegisterRequest() {}
 
@@ -61,5 +67,13 @@ public class RegisterRequest {
 
 	public void setPassword(String password) {
 		this.password = password;
+	}
+
+	public UserRole getRole() {
+		return role;
+	}
+
+	public void setRole(UserRole role) {
+		this.role = role;
 	}
 }
