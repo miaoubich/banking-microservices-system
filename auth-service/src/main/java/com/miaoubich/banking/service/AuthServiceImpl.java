@@ -69,6 +69,7 @@ public class AuthServiceImpl implements AuthService {
 		credential.setValue(request.getPassword());
 		credential.setTemporary(false);
 
+		// add user to Keycloak
 		UserRepresentation keycloakUser = new UserRepresentation();
 		keycloakUser.setUsername(request.getEmail());
 		keycloakUser.setEmail(request.getEmail());
@@ -96,6 +97,9 @@ public class AuthServiceImpl implements AuthService {
 		RoleRepresentation roleRepresentation = keycloak.realm(realm)
 				.clients().get(clientRepresentation.getId())
 				.roles().get(request.getRole().toKeycloakRole()).toRepresentation();
+		
+		logger.info("Client ID: {}, Role ID: {}", clientRepresentation.getId(), roleRepresentation.getId());
+		
 		keycloak.realm(realm).users().get(keycloakId)
 				.roles().clientLevel(clientRepresentation.getId())
 				.add(List.of(roleRepresentation));
