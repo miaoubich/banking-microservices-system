@@ -10,6 +10,22 @@ spring:
     username: postgres
     password: password
     driver-class-name: org.postgresql.Driver
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:9090/realms/Maradga
+
+  cache:
+    type: redis
+    redis:
+      time-to-live: 600000
   jpa:
     hibernate:
       ddl-auto: update
@@ -27,9 +43,13 @@ keycloak:
   client-secret: ahL0SMoOP9W1SHpph64ZIiWbY4fglJ0b
 
 eureka:
+  instance:
+    prefer-ip-address: true
   client:
     register-with-eureka: true
     fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
 
 management:
   endpoints:

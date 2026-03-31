@@ -15,6 +15,9 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
@@ -121,8 +124,7 @@ public class AuthServiceImpl implements AuthService {
 	}
 
 	@Override
-	public AuthResponse login(LoginRequest request) {
-		String tokenUrl = serverUrl + "/realms/" + realm + "/protocol/openid-connect/token";
+	public AuthResponse login(LoginRequest request) {		String tokenUrl = serverUrl + "/realms/" + realm + "/protocol/openid-connect/token";
 
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
@@ -136,17 +138,17 @@ public class AuthServiceImpl implements AuthService {
 
 		HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<>(body, headers);
 
-		ResponseEntity<java.util.Map> response = restTemplate.postForEntity(tokenUrl, entity, java.util.Map.class);
-
-		if (!response.getStatusCode().is2xxSuccessful() || response.getBody() == null) {
-			throw new RuntimeException("Invalid credentials");
+		try {
+			ResponseEntity<java.util.Map> response = restTemplate.postForEntity(tokenUrl, entity, java.util.Map.class);
+			java.util.Map<?, ?> responseBody = response.getBody();
+			return new AuthResponse(
+					(String) responseBody.get("access_token"),
+					(String) responseBody.get("refresh_token"),
+					((Number) responseBody.get("expires_in")).longValue()
+			);
+		} catch (Exception e) {
+			logger.error("Login failed for user {}: {}", request.getEmail(), e.getMessage());
+			throw new RuntimeException("Invalid email or password");
 		}
-
-		java.util.Map<?, ?> responseBody = response.getBody();
-		return new AuthResponse(
-				(String) responseBody.get("access_token"),
-				(String) responseBody.get("refresh_token"),
-				((Number) responseBody.get("expires_in")).longValue()
-		);
 	}
 }

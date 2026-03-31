@@ -7,5 +7,6 @@ import com.miaoubich.banking.dto.RegisterRequest;
 public interface AuthService {
 
 	void register(RegisterRequest request);
+
 	AuthResponse login(LoginRequest request);
 }

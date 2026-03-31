@@ -7,11 +7,19 @@ spring:
 
   cloud:
     gateway:
+      discovery:
+        locator:
+          enabled: true
       routes:
         - id: auth-service
           uri: lb://auth-service
           predicates:
             - Path=/api/auth/**
+
+        - id: user-service
+          uri: lb://auth-service
+          predicates:
+            - Path=/api/users/**
 
         - id: account-service
           uri: lb://account-service
@@ -25,9 +33,13 @@ spring:
           issuer-uri: http://localhost:9090/realms/Maradga
 
 eureka:
+  instance:
+    prefer-ip-address: true
   client:
     register-with-eureka: true
     fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
 
 management:
   endpoints:
