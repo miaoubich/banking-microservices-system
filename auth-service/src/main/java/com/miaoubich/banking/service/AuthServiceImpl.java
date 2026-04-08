@@ -1,6 +1,7 @@
 package com.miaoubich.banking.service;
 
 import java.util.List;
+import java.util.Map;
 
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.resource.UsersResource;
@@ -66,20 +67,23 @@ public class AuthServiceImpl implements AuthService {
 			throw new RuntimeException("Email already registered: " + request.getEmail());
 		}
 
-		// Create user in Keycloak server
+		/* Create user in Keycloak server */
+		//Build Keycloak credentials
 		CredentialRepresentation credential = new CredentialRepresentation();
 		credential.setType(CredentialRepresentation.PASSWORD);
 		credential.setValue(request.getPassword());
-		credential.setTemporary(false);
+		credential.setTemporary(false);//user won't be forced to change password on first login
 
-		// add user to Keycloak
+		/* add user to Keycloak */
+		//Build Keycloak user object
 		UserRepresentation keycloakUser = new UserRepresentation();
-		keycloakUser.setUsername(request.getEmail());
+		keycloakUser.setUsername(request.getUsername());
 		keycloakUser.setEmail(request.getEmail());
 		keycloakUser.setFirstName(request.getFirstName());
 		keycloakUser.setLastName(request.getLastName());
-		keycloakUser.setEnabled(true);
+		keycloakUser.setEnabled(true);//account is active
 		keycloakUser.setCredentials(List.of(credential));
+		keycloakUser.setEmailVerified(true);//email is verified to avoid email verification step
 
 		UsersResource usersResource = keycloak.realm(realm).users();
 		Response response = usersResource.create(keycloakUser);
@@ -113,6 +117,7 @@ public class AuthServiceImpl implements AuthService {
 		User user = new User(
 				request.getFirstName(),
 				request.getLastName(),
+				request.getUsername(),
 				request.getEmail(),
 				request.getPhone(),
 				keycloakId,
@@ -133,13 +138,13 @@ public class AuthServiceImpl implements AuthService {
 		body.add("grant_type", "password");
 		body.add("client_id", clientId);
 		body.add("client_secret", clientSecret);
-		body.add("username", request.getEmail());
+		body.add("username", request.getUsername());
 		body.add("password", request.getPassword());
 
 		HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<>(body, headers);
 
 		try {
-			ResponseEntity<java.util.Map> response = restTemplate.postForEntity(tokenUrl, entity, java.util.Map.class);
+			ResponseEntity<Map> response = restTemplate.postForEntity(tokenUrl, entity, java.util.Map.class);
 			java.util.Map<?, ?> responseBody = response.getBody();
 			return new AuthResponse(
 					(String) responseBody.get("access_token"),
@@ -147,7 +152,7 @@ public class AuthServiceImpl implements AuthService {
 					((Number) responseBody.get("expires_in")).longValue()
 			);
 		} catch (Exception e) {
-			logger.error("Login failed for user {}: {}", request.getEmail(), e.getMessage());
+			logger.error("Login failed for user {}: {}", request.getUsername(), e.getMessage());
 			throw new RuntimeException("Invalid email or password");
 		}
 	}

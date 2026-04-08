@@ -43,7 +43,7 @@ keycloak:
   server-url: http://localhost:9090
   realm: Maradga
   client-id: banking-system
-  client-secret: ahL0SMoOP9W1SHpph64ZIiWbY4fglJ0b
+  client-secret: k670S5pYEb1YSXcuS8KHJxQzF0OhJtbl
 
 eureka:
   instance:

@@ -29,6 +29,7 @@ public class AccountController {
 		Long clientId = 1L; // TODO: replace with jwt.getSubject() when auth-service is ready;
 		return ResponseEntity.ok(accountService.createAccount(request, clientId));
 	}
+	
 	@PatchMapping("/{accountId}/status")
 	public ResponseEntity<?> updateAccountStatus(@PathVariable Long accountId, @RequestParam AccountStatus status) {
 		return ResponseEntity.ok(accountService.updateAccountStatus(accountId, status));

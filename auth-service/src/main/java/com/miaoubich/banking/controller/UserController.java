@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.miaoubich.banking.domain.User;
+import com.miaoubich.banking.dto.UpdatePasswordRequest;
 import com.miaoubich.banking.service.UserService;
 
 @RestController
@@ -37,6 +39,12 @@ public class UserController {
 	@PutMapping("/{id}")
 	public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User updatedUser) {
 		return ResponseEntity.ok(userService.updateUser(id, updatedUser));
+	}
+	
+	@PatchMapping("/{id}/password")
+	public ResponseEntity<String> updateUserPassword(@PathVariable Long id, @RequestBody UpdatePasswordRequest request) {
+		userService.updateUserPasswordByUserId(id, request);
+		return ResponseEntity.ok("Password updated successfully");
 	}
 
 	@DeleteMapping("/{id}")

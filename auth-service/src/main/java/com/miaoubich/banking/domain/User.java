@@ -26,6 +26,9 @@ public class User implements java.io.Serializable {
 
 	@Column(nullable = false)
 	private String lastName;
+	
+	@Column(nullable = false)
+	private String username;
 
 	@Column(nullable = false, unique = true)
 	private String email;
@@ -45,9 +48,10 @@ public class User implements java.io.Serializable {
 
 	public User() {}
 
-	public User(String firstName, String lastName, String email, String phone, String keycloakId, UserRole role) {
+	public User(String firstName, String lastName, String username, String email, String phone, String keycloakId, UserRole role) {
 		this.firstName = firstName;
 		this.lastName = lastName;
+		this.username = username;
 		this.email = email;
 		this.phone = phone;
 		this.keycloakId = keycloakId;
@@ -72,6 +76,14 @@ public class User implements java.io.Serializable {
 
 	public void setLastName(String lastName) {
 		this.lastName = lastName;
+	}
+	
+	public void setUsername(String username) {
+		this.username = username;
+	}
+	
+	public String getUsername() {
+		return username;
 	}
 
 	public String getEmail() {
