@@ -35,7 +35,7 @@ public class Account {
 	@UpdateTimestamp
 	private LocalDateTime updatedAt;
 	@Column(nullable = false)
-	private Long clientId;
+	private String clientId;
 	
 	@Version
 	private Long version;
@@ -43,7 +43,7 @@ public class Account {
 	public Account() {}
 	
 	public Account(String accountNumber, BigDecimal balance, AccountType accountType, AccountStatus accountStatus, LocalDateTime createdAt,
-			LocalDateTime updatedAt, Long clientId, Long version) {
+			LocalDateTime updatedAt, String clientId, Long version) {
 		this.accountNumber = accountNumber;
 		this.balance = balance;
 		AccountType = accountType;
@@ -106,11 +106,11 @@ public class Account {
 		this.accountStatus = accountStatus;
 	}
 
-	public Long getClientId() {
+	public String getClientId() {
 		return clientId;
 	}
 
-	public void setClientId(Long clientId) {
+	public void setClientId(String clientId) {
 		this.clientId = clientId;
 	}
 

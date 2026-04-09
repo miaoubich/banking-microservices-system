@@ -13,13 +13,13 @@ public class AccountCreatedEvent {
 	private BigDecimal balance;
 	private AccountType accountType;
 	private AccountStatus accountStatus;
-	private Long clientId;
+	private String clientId;
 	private LocalDateTime createdAt;
 
 	public AccountCreatedEvent() {}
 
 	public AccountCreatedEvent(Long accountId, String accountNumber, BigDecimal balance, AccountType accountType,
-			AccountStatus accountStatus, Long clientId, LocalDateTime createdAt) {
+			AccountStatus accountStatus, String clientId, LocalDateTime createdAt) {
 		this.accountId = accountId;
 		this.accountNumber = accountNumber;
 		this.balance = balance;
@@ -69,11 +69,11 @@ public class AccountCreatedEvent {
 		this.accountStatus = accountStatus;
 	}
 
-	public Long getClientId() {
+	public String getClientId() {
 		return clientId;
 	}
 
-	public void setClientId(Long clientId) {
+	public void setClientId(String clientId) {
 		this.clientId = clientId;
 	}
 

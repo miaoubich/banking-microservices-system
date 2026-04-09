@@ -27,8 +27,8 @@ spring:
     redis:
       time-to-live: 600000
 
-  zipkin:
-    base-url: http://localhost:9411
+  # zipkin:
+  #   base-url: http://localhost:9411
   jpa:
     hibernate:
       ddl-auto: update
@@ -58,24 +58,39 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info,caches,metrics,env,prometheus
+        include: health,info,caches,env
   endpoint:
     health:
       show-details: always
-    prometheus:
-      enabled: true
-  # Micrometer configuration
   tracing:
     sampling:
-      probability: 1.0
-  # Prometheus configuration
-  prometheus:
-    metrics:
-      export:
-        enabled: true
+      probability: 0.0
+
+# Monitoring stack disabled (Zipkin, Prometheus, Grafana)
+# management:
+#   endpoints:
+#     web:
+#       exposure:
+#         include: health,info,caches,metrics,env,prometheus
+#   endpoint:
+#     health:
+#       show-details: always
+#     prometheus:
+#       enabled: true
+#   # Micrometer configuration
+#   tracing:
+#     sampling:
+#       probability: 0.0  # Disable tracing
+#   # Prometheus configuration
+#   prometheus:
+#     metrics:
+#       export:
+#         enabled: true
 
 
 logging:
   level:
     org.hibernate.SQL: debug
     org.hibernate.orm.jdbc.bind: trace
+    org.springframework.security: DEBUG
+    com.miaoubich.banking: DEBUG

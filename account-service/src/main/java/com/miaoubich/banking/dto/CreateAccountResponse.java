@@ -13,13 +13,13 @@ public class CreateAccountResponse {
 	private BigDecimal balance;
 	private AccountType accountType;
 	private AccountStatus accountStatus;
-	private Long clientId;
+	private String clientId;
 	private LocalDate createdAt;
 
 	public CreateAccountResponse() {}
 
 	public CreateAccountResponse(Long id, String accountNumber, BigDecimal balance, AccountType accountType,
-			AccountStatus accountStatus, Long clientId, LocalDate createdAt) {
+			AccountStatus accountStatus, String clientId, LocalDate createdAt) {
 		this.id = id;
 		this.accountNumber = accountNumber;
 		this.balance = balance;
@@ -69,11 +69,11 @@ public class CreateAccountResponse {
 		this.accountStatus = accountStatus;
 	}
 
-	public Long getClientId() {
+	public String getClientId() {
 		return clientId;
 	}
 
-	public void setClientId(Long clientId) {
+	public void setClientId(String clientId) {
 		this.clientId = clientId;
 	}
 

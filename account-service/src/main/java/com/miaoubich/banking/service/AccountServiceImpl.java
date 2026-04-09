@@ -3,6 +3,7 @@ package com.miaoubich.banking.service;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +38,7 @@ public class AccountServiceImpl implements AccountService {
 	}
 	
 	@Transactional
-	public CreateAccountResponse createAccount(CreateAccountRequest request, Long clientId) {
+	public CreateAccountResponse createAccount(CreateAccountRequest request, String clientId) {
 	    Account account = accountMapper.toAccount(request);
 	    account.setAccountNumber(generateAccountNumber());
 	    account.setAccountStatus(AccountStatus.ACTIVE);
@@ -78,6 +79,14 @@ public class AccountServiceImpl implements AccountService {
 		account.setAccountStatus(newStatus);
 		logger.info("Updating account {} status to {}", accountId, newStatus);
 		return accountMapper.toResponse(accountRepository.save(account));
+	}
+
+	public List<Account> getAllAccounts() {
+		return accountRepository.findAll();
+	}
+
+	public List<Account> getAccountsByClientId(String clientId) {
+		return accountRepository.findByClientId(clientId);
 	}
 
 	public String generateAccountNumber() {

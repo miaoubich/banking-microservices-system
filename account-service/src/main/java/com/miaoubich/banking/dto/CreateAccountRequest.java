@@ -6,23 +6,23 @@ import com.miaoubich.banking.domain.AccountType;
 
 public class CreateAccountRequest {
 
-	private Long clientId;
+	private String clientId;
 	private AccountType accountType;
 	private BigDecimal initialBalance;
 
 	public CreateAccountRequest() {}
 
-	public CreateAccountRequest(Long clientId, AccountType accountType, BigDecimal initialBalance) {
+	public CreateAccountRequest(String clientId, AccountType accountType, BigDecimal initialBalance) {
 		this.clientId = clientId;
 		this.accountType = accountType;
 		this.initialBalance = initialBalance;
 	}
 
-	public Long getClientId() {
+	public String getClientId() {
 		return clientId;
 	}
 
-	public void setClientId(Long clientId) {
+	public void setClientId(String clientId) {
 		this.clientId = clientId;
 	}
 
