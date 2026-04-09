@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.miaoubich.banking.domain.User;
 import com.miaoubich.banking.dto.UpdatePasswordRequest;
+import com.miaoubich.banking.exception.UserNotFoundException;
 import com.miaoubich.banking.repository.UserRepository;
 
 @Service
@@ -37,7 +38,7 @@ public class UserServiceImpl implements UserService {
 	@Cacheable(value = "users", key = "#id")
 	public User findUserById(Long id) {
 		return userRepository.findById(id)
-				.orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+				.orElseThrow(() -> new UserNotFoundException(id));
 	}
 
 	@Override
@@ -45,7 +46,7 @@ public class UserServiceImpl implements UserService {
 	@CachePut(value = "users", key = "#id")
 	public User updateUser(Long id, User updatedUser) {
 		User existingUser = userRepository.findById(id)
-				.orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+				.orElseThrow(() -> new UserNotFoundException(id));
 		existingUser.setFirstName(updatedUser.getFirstName());
 		existingUser.setLastName(updatedUser.getLastName());
 		existingUser.setPhone(updatedUser.getPhone());
@@ -57,7 +58,7 @@ public class UserServiceImpl implements UserService {
 	@CacheEvict(value = "users", key = "#id")
 	public void deleteUser(Long id) {
 		User user = userRepository.findById(id)
-				.orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+				.orElseThrow(() -> new UserNotFoundException(id));
 		keycloak.realm(realm).users().delete(user.getKeycloakId());
 		userRepository.deleteById(id);
 		logger.info("User deleted from DB and Keyd: {}", id);
@@ -71,7 +72,7 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public void updateUserPasswordByUserId(Long userId, UpdatePasswordRequest request) {
 		User user = userRepository.findById(userId)
-				.orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
+				.orElseThrow(() -> new UserNotFoundException(userId));
 
 		CredentialRepresentation credential = new CredentialRepresentation();
 		credential.setType(CredentialRepresentation.PASSWORD);
