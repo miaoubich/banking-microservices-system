@@ -1,7 +1,7 @@
 package com.miaoubich.banking.domain;
 
 public enum AccountType {
-	CHECKING, 
+	CHECKING,
 	SAVINGS,
 	BUSINESS
 }

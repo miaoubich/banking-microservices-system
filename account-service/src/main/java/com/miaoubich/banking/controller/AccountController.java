@@ -21,7 +21,7 @@ import com.miaoubich.banking.service.AccountService;
 /*
  *  Role				Permissions
  * client_super	| 	Full access - can view all accounts, update any account status
- * client_admin	| 	Can create accounts, view own accounts
+ * client_admin	| 	Can create accounts, view own accounts, update account status
  * client_user	|   Can create accounts, view own accounts
  * client_devops|	No access (removed from endpoints)
  * 
@@ -58,7 +58,7 @@ public class AccountController {
 	}
 	
 	@PatchMapping("/{accountId}/status")
-	@PreAuthorize("hasRole('client_super')")
+	@PreAuthorize("hasRole('client_admin') or hasRole('client_super')")
 	public ResponseEntity<?> updateAccountStatus(@PathVariable Long accountId, @RequestParam AccountStatus status) {
 		return ResponseEntity.ok(accountService.updateAccountStatus(accountId, status));
 	}

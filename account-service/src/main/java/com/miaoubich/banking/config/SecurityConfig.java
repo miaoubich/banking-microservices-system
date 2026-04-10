@@ -1,13 +1,22 @@
 package com.miaoubich.banking.config;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
-import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
@@ -33,12 +42,29 @@ public class SecurityConfig {
 
 	@Bean
 	public JwtAuthenticationConverter jwtAuthenticationConverter() {
-		JwtGrantedAuthoritiesConverter authoritiesConverter = new JwtGrantedAuthoritiesConverter();
-		authoritiesConverter.setAuthorityPrefix("ROLE_");
-		authoritiesConverter.setAuthoritiesClaimName("resource_access.banking-system.roles");
-
 		JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
-		converter.setJwtGrantedAuthoritiesConverter(authoritiesConverter);
+		converter.setJwtGrantedAuthoritiesConverter(this::extractAuthorities);
 		return converter;
+	}
+
+	@SuppressWarnings("unchecked")
+	private Collection<GrantedAuthority> extractAuthorities(Jwt jwt) {
+		Set<GrantedAuthority> authorities = new HashSet<>();
+
+		Map<String, Object> realmAccess = jwt.getClaimAsMap("realm_access");
+		if (realmAccess != null)
+			((List<String>) realmAccess.getOrDefault("roles", Collections.emptyList())).stream()
+					.map(role -> new SimpleGrantedAuthority("ROLE_" + role))
+					.forEach(authorities::add);
+
+		Map<String, Object> resourceAccess = jwt.getClaimAsMap("resource_access");
+		if (resourceAccess != null && resourceAccess.containsKey("banking-system")) {
+			Map<String, Object> clientAccess = (Map<String, Object>) resourceAccess.get("banking-system");
+			((List<String>) clientAccess.getOrDefault("roles", Collections.emptyList())).stream()
+					.map(role -> new SimpleGrantedAuthority("ROLE_" + role))
+					.forEach(authorities::add);
+		}
+
+		return authorities;
 	}
 }
