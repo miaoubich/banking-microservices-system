@@ -1,5 +1,7 @@
 package com.miaoubich.banking.controller;
 
+import jakarta.validation.Valid;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,6 +17,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 
 import com.miaoubich.banking.domain.AccountStatus;
+import com.miaoubich.banking.dto.BalanceRequest;
 import com.miaoubich.banking.dto.CreateAccountRequest;
 import com.miaoubich.banking.service.AccountService;
 
@@ -57,6 +60,18 @@ public class AccountController {
 		return ResponseEntity.ok(accountService.getAccountsByClientId(clientId));
 	}
 	
+	@PostMapping("/{accountId}/deposit")
+	@PreAuthorize("hasRole('client_user') or hasRole('client_admin') or hasRole('client_super')")
+	public ResponseEntity<?> deposit(@PathVariable Long accountId, @RequestBody @Valid BalanceRequest request) {
+		return ResponseEntity.ok(accountService.deposit(accountId, request));
+	}
+
+	@PostMapping("/{accountId}/withdraw")
+	@PreAuthorize("hasRole('client_user') or hasRole('client_admin') or hasRole('client_super')")
+	public ResponseEntity<?> withdraw(@PathVariable Long accountId, @RequestBody @Valid BalanceRequest request) {
+		return ResponseEntity.ok(accountService.withdraw(accountId, request));
+	}
+
 	@PatchMapping("/{accountId}/status")
 	@PreAuthorize("hasRole('client_admin') or hasRole('client_super')")
 	public ResponseEntity<?> updateAccountStatus(@PathVariable Long accountId, @RequestParam AccountStatus status) {
