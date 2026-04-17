@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 
 import com.miaoubich.banking.domain.Account;
 import com.miaoubich.banking.domain.AccountStatus;
+import com.miaoubich.banking.domain.Transaction;
+import com.miaoubich.banking.domain.TransactionType;
 import com.miaoubich.banking.domain.OutboxEvent;
 import com.miaoubich.banking.dto.BalanceRequest;
 import com.miaoubich.banking.dto.CreateAccountRequest;
@@ -20,6 +22,7 @@ import com.miaoubich.banking.exception.AccountNotFoundException;
 import com.miaoubich.banking.exception.InsufficientFundsException;
 import com.miaoubich.banking.mapper.AccountMapper;
 import com.miaoubich.banking.repository.AccountRepository;
+import com.miaoubich.banking.repository.TransactionRepository;
 
 import com.miaoubich.banking.repository.OutboxEventRepository;
 
@@ -33,11 +36,13 @@ public class AccountServiceImpl implements AccountService {
 	private final AccountRepository accountRepository;
 	private final OutboxEventRepository outboxEventRepository;
 	private final AccountMapper accountMapper;
-	
-	public AccountServiceImpl(OutboxEventRepository outboxEventRepository, AccountRepository accountRepository, AccountMapper accountMapper) {
+	private final TransactionRepository transactionRepository;
+
+	public AccountServiceImpl(OutboxEventRepository outboxEventRepository, AccountRepository accountRepository, AccountMapper accountMapper, TransactionRepository transactionRepository) {
 		this.accountRepository = accountRepository;
 		this.outboxEventRepository = outboxEventRepository;
 		this.accountMapper = accountMapper;
+		this.transactionRepository = transactionRepository;
 	}
 	
 	@Transactional
@@ -90,6 +95,7 @@ public class AccountServiceImpl implements AccountService {
 				.orElseThrow(() -> new AccountNotFoundException(accountId));
 		validateAccountActive(account);
 		account.setBalance(account.getBalance().add(request.getAmount()));
+		transactionRepository.save(new Transaction(account.getId(), account.getAccountNumber(), TransactionType.DEPOSIT, request.getAmount(), account.getBalance()));
 		logger.info("Deposited {} to account {}, new balance: {}", request.getAmount(), account.getAccountNumber(), account.getBalance());
 		return accountMapper.toResponse(accountRepository.save(account));
 	}
@@ -102,6 +108,7 @@ public class AccountServiceImpl implements AccountService {
 		if (account.getBalance().compareTo(request.getAmount()) < 0)
 			throw new InsufficientFundsException(request.getAmount(), account.getBalance());
 		account.setBalance(account.getBalance().subtract(request.getAmount()));
+		transactionRepository.save(new Transaction(account.getId(), account.getAccountNumber(), TransactionType.WITHDRAWAL, request.getAmount(), account.getBalance()));
 		logger.info("Withdrew {} from account number {}, new balance: {}", request.getAmount(), account.getAccountNumber(), account.getBalance());
 		return accountMapper.toResponse(accountRepository.save(account));
 	}
