@@ -1,7 +1,6 @@
 package com.miaoubich.banking.domain;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import org.hibernate.annotations.CreationTimestamp;

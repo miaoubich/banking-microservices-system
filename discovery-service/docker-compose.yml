@@ -1,0 +1,8 @@
+services:
+  discovery-service:
+    build: .
+    ports:
+      - "8761:8761"
+    environment:
+      - EUREKA_INSTANCE_HOSTNAME=localhost
+    network_mode: host

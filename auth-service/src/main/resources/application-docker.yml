@@ -1,34 +1,32 @@
 server:
-  port: 8082
+  port: ${SERVER_PORT:8082}
 
 spring:
   application:
     name: auth-service
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/userdb
-    username: postgres
-    password: password
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/userdb}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:password}
     driver-class-name: org.postgresql.Driver
 
   data:
     redis:
-      host: localhost
-      port: 6379
+      host: ${SPRING_REDIS_HOST:localhost}
+      port: ${SPRING_REDIS_PORT:6379}
 
   security:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://localhost:9090/realms/Maradga
+          issuer-uri: 
 
   cache:
     type: redis
     redis:
       time-to-live: 600000
 
-  # zipkin:
-  #   base-url: http://localhost:9411
   jpa:
     hibernate:
       ddl-auto: update
@@ -52,7 +50,7 @@ eureka:
     register-with-eureka: true
     fetch-registry: true
     service-url:
-      defaultZone: http://localhost:8761/eureka/
+      defaultZone: ${EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE:http://localhost:8761/eureka/}
 
 management:
   endpoints:
@@ -65,28 +63,6 @@ management:
   tracing:
     sampling:
       probability: 0.0
-
-# Monitoring stack disabled (Zipkin, Prometheus, Grafana)
-# management:
-#   endpoints:
-#     web:
-#       exposure:
-#         include: health,info,caches,metrics,env,prometheus
-#   endpoint:
-#     health:
-#       show-details: always
-#     prometheus:
-#       enabled: true
-#   # Micrometer configuration
-#   tracing:
-#     sampling:
-#       probability: 0.0  # Disable tracing
-#   # Prometheus configuration
-#   prometheus:
-#     metrics:
-#       export:
-#         enabled: true
-
 
 logging:
   level:

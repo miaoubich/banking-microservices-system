@@ -1,0 +1,10 @@
+services:
+  account-service:
+    build: .
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/accountdb
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=localhost:9092
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://localhost:8761/eureka/
+    network_mode: host

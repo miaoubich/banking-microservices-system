@@ -1,0 +1,10 @@
+services:
+  auth-service:
+    build: .
+    ports:
+      - "8082:8082"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/userdb
+      - SPRING_REDIS_HOST=localhost
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://localhost:8761/eureka/
+    network_mode: host

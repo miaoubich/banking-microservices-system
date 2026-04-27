@@ -1,5 +1,6 @@
 package com.miaoubich.banking.config;
 
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -31,8 +32,8 @@ public class SecurityConfig {
 			.authorizeHttpRequests(auth -> auth
 				.requestMatchers("/api/auth/register", "/api/auth/login", "/actuator/**").permitAll()
 				.anyRequest().authenticated()
-			)
-			.oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())));
+			);
+			//.oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())));
 		return http.build();
 	}
 
@@ -71,5 +72,13 @@ public class SecurityConfig {
 		}
 		
 		return authorities;
+	}
+	
+	@Bean
+	CommandLineRunner logSecurityChains(List<SecurityFilterChain> chains) {
+	    return args -> {
+	        System.out.println("=== SECURITY CHAINS ===");
+	        chains.forEach(chain -> System.out.println("CHAIN: " + chain));
+	    };
 	}
 }

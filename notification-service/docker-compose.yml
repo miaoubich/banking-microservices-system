@@ -1,0 +1,9 @@
+services:
+  notification-service:
+    build: .
+    ports:
+      - "8084:8084"
+    environment:
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=localhost:9092
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://localhost:8761/eureka/
+    network_mode: host
