@@ -18,7 +18,10 @@ public class AccountTransactionListener {
         logger.info("🚀 AccountTransactionListener initialized - ready to consume events from banking.account-transaction");
     }
 
-    @KafkaListener(topics = "banking.account-transaction", groupId = "notification-service")
+    @KafkaListener(
+    		topics = "${spring.kafka.template.default-topic}", 
+    		groupId = "${spring.kafka.consumer.group-id}"
+    		)
     public void handleAccountTransaction(String message) {
         logger.info("📥 Received message: {}", message);
         try {

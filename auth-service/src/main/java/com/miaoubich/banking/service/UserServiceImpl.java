@@ -21,7 +21,7 @@ import com.miaoubich.banking.repository.UserRepository;
 @Service
 public class UserServiceImpl implements UserService {
 	
-	private static final Logger logger = LoggerFactory.getLogger(AuthServiceImpl.class);
+	private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 
 	private final Keycloak keycloak;
 	private final UserRepository userRepository;

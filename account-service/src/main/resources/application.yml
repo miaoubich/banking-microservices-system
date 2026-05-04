@@ -9,6 +9,16 @@ spring:
       resourceserver:
         jwt:
           issuer-uri: http://localhost:9090/realms/Maradga
+ 
+  kafka:
+   bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+   producer:
+    key-serializer: org.apache.kafka.common.serialization.StringSerializer
+    value-serializer: org.apache.kafka.common.serialization.StringSerializer
+    acks: all
+    retries: 3
+    properties:
+     enable.idempotence: true #ensure that duplicate messages are not written to the broker, even if retries occur.
 
   datasource:
     url: jdbc:postgresql://localhost:5432/accountdb

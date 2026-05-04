@@ -3,8 +3,10 @@ server:
 
 spring:
   application:
-    name: notification-service
+    name: notification-service	
   kafka:
+    template:
+         default-topic: banking.account-transaction
     bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
     consumer:
       group-id: notification-service

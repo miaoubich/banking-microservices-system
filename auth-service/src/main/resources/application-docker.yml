@@ -20,7 +20,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: 
+          issuer-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:9090/realms/Maradga}
 
   cache:
     type: redis
@@ -41,7 +41,7 @@ keycloak:
   server-url: http://localhost:9090
   realm: Maradga
   client-id: banking-system
-  client-secret: k670S5pYEb1YSXcuS8KHJxQzF0OhJtbl
+  client-secret: ${KEYCLOAK_CLIENT_SECRET}
 
 eureka:
   instance:
