@@ -68,24 +68,36 @@ public class AccountServiceImpl implements AccountService {
 
 	@Transactional
 	public CreateAccountResponse deposit(Long accountId, BalanceRequest request, String clientId) {
+		transactionRepository.findByIdempotencyKey(request.getIdempotencyKey())
+				.ifPresent(t -> { throw new IllegalArgumentException("Duplicate transaction: idempotency key already used"); });
+
 		Account account = accountRepository.findById(accountId)
 				.orElseThrow(() -> new AccountNotFoundException(accountId));
 		validateAccountOwnership(account, clientId);
 		validateAccountActive(account);
 		account.setBalance(account.getBalance().add(request.getAmount()));
-		transactionRepository.save(new Transaction(account.getId(), account.getAccountNumber(), TransactionType.DEPOSIT, request.getAmount(), account.getBalance()));
-		
+		transactionRepository.save(new Transaction(account.getId(), 
+											       account.getAccountNumber(), 
+											       TransactionType.DEPOSIT, 
+											       request.getAmount(), 
+											       account.getBalance(), 
+											       request.getIdempotencyKey())
+								);
+
 		AccountTransactionEvent event = new AccountTransactionEvent(
 				account.getId().toString(), account.getAccountNumber(), "DEPOSIT",
 				request.getAmount(), account.getBalance(), account.getClientId());
 		eventPublisherService.saveEvent("ACCOUNT_TRANSACTION", account.getId().toString(), event);
-		
+
 		logger.info("Deposited {} to account {}, new balance: {}", request.getAmount(), account.getAccountNumber(), account.getBalance());
 		return accountMapper.toResponse(accountRepository.save(account));
 	}
 
 	@Transactional
 	public CreateAccountResponse withdraw(Long accountId, BalanceRequest request, String clientId) {
+		transactionRepository.findByIdempotencyKey(request.getIdempotencyKey())
+				.ifPresent(t -> { throw new IllegalArgumentException("Duplicate transaction: idempotency key already used"); });
+
 		Account account = accountRepository.findById(accountId)
 				.orElseThrow(() -> new AccountNotFoundException(accountId));
 		validateAccountOwnership(account, clientId);
@@ -93,13 +105,19 @@ public class AccountServiceImpl implements AccountService {
 		if (account.getBalance().compareTo(request.getAmount()) < 0)
 			throw new InsufficientFundsException(request.getAmount(), account.getBalance());
 		account.setBalance(account.getBalance().subtract(request.getAmount()));
-		transactionRepository.save(new Transaction(account.getId(), account.getAccountNumber(), TransactionType.WITHDRAWAL, request.getAmount(), account.getBalance()));
-		
+		transactionRepository.save(new Transaction(account.getId(), 
+												   account.getAccountNumber(), 
+												   TransactionType.WITHDRAWAL, 
+												   request.getAmount(), 
+												   account.getBalance(), 
+												   request.getIdempotencyKey())
+									);
+
 		AccountTransactionEvent event = new AccountTransactionEvent(
 				account.getId().toString(), account.getAccountNumber(), "WITHDRAWAL",
 				request.getAmount(), account.getBalance(), account.getClientId());
 		eventPublisherService.saveEvent("ACCOUNT_TRANSACTION", account.getId().toString(), event);
-		
+
 		logger.info("Withdrew {} from account number {}, new balance: {}", request.getAmount(), account.getAccountNumber(), account.getBalance());
 		return accountMapper.toResponse(accountRepository.save(account));
 	}

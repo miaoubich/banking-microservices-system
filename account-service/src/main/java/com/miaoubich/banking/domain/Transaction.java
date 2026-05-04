@@ -38,17 +38,21 @@ public class Transaction {
     @Column(nullable = false)
     private BigDecimal balanceAfter;
 
+    @Column(nullable = false, unique = true)
+    private String idempotencyKey;
+
     @CreationTimestamp
     private LocalDateTime createdAt;
 
     public Transaction() {}
 
-    public Transaction(Long accountId, String accountNumber, TransactionType type, BigDecimal amount, BigDecimal balanceAfter) {
+    public Transaction(Long accountId, String accountNumber, TransactionType type, BigDecimal amount, BigDecimal balanceAfter, String idempotencyKey) {
         this.accountId = accountId;
         this.accountNumber = accountNumber;
         this.type = type;
         this.amount = amount;
         this.balanceAfter = balanceAfter;
+        this.idempotencyKey = idempotencyKey;
     }
 
     public Long getId() { return id; }
@@ -57,5 +61,6 @@ public class Transaction {
     public TransactionType getType() { return type; }
     public BigDecimal getAmount() { return amount; }
     public BigDecimal getBalanceAfter() { return balanceAfter; }
+    public String getIdempotencyKey() { return idempotencyKey; }
     public LocalDateTime getCreatedAt() { return createdAt; }
 }
