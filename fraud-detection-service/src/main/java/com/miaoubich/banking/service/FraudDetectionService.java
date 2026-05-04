@@ -1,7 +1,5 @@
 package com.miaoubich.banking.service;
 
-import java.math.BigDecimal;
-import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,61 +13,55 @@ import com.miaoubich.banking.domain.TransactionEvent;
 @Service
 public class FraudDetectionService {
 
- public FraudCheckResult checkFraud(TransactionEvent event) {
-	 
-     List<String> rulesTriggered = new ArrayList<>();
+    public FraudCheckResult checkFraud(TransactionEvent event) {
+        List<String> rulesTriggered = new ArrayList<>();
 
-     // Rule 1: very high amount
-     if (event.amount().compareTo(BigDecimal.valueOf(10_000)) > 0) {
-         rulesTriggered.add("HIGH_AMOUNT");
-     }
+        double amount = event.amount().doubleValue();
+        double balanceAfter = event.balanceAfter().doubleValue();
+        String transactionType = event.transactionType();
 
-     // Rule 2: from unusual location
-     if (isUnusualCountry(event.customerId(), event.location())) {
-         rulesTriggered.add("UNUSUAL_LOCATION");
-     }
+        // Rule 1: High-value transaction
+        if (amount > 10_000) {
+            rulesTriggered.add("HIGH_AMOUNT_OVER_10K");
+        }
 
-     // Rule 3: too many transactions in last N minutes
-     long countsLast5min = countRecentTransactions(event.customerId(), Duration.ofMinutes(5));
-     if (countsLast5min > 10) {
-         rulesTriggered.add("HIGH_VELOCITY");
-     }
+        // Rule 2: High-value withdrawal
+        if ("WITHDRAWAL".equalsIgnoreCase(transactionType) && amount > 5_000) {
+            rulesTriggered.add("HIGH_VALUE_WITHDRAWAL");
+        }
 
-     // Translate to risk level
-     if (rulesTriggered.isEmpty()) {
-         return new FraudCheckResult(
-             event.transactionId(),
-             event.customerId(),
-             FraudRiskLevel.LOW,
-             List.of(),
-             Instant.now(),
-             false
-         );
-     }
+        // Rule 3: Near-zero balance after withdrawal
+        if ("WITHDRAWAL".equalsIgnoreCase(transactionType) && balanceAfter < 10) {
+            rulesTriggered.add("CRITICAL_BALANCE_AFTER_WITHDRAWAL");
+        }
 
-     boolean isBlocked = rulesTriggered.stream()
-         .anyMatch(r -> r.equals("HIGH_AMOUNT") || r.equals("UNUSUAL_LOCATION"));
+        // Rule 4: Unusually large deposit (placeholder threshold)
+        if ("DEPOSIT".equalsIgnoreCase(transactionType) && amount > 2_000) {
+            rulesTriggered.add("UNUSUALLY_LARGE_DEPOSIT");
+        }
 
-     FraudRiskLevel riskLevel =
-         isBlocked ? FraudRiskLevel.FRAUD : FraudRiskLevel.HIGH;
+        FraudRiskLevel riskLevel;
+        boolean isBlocked = false;
 
-     return new FraudCheckResult(
-         event.transactionId(),
-         event.customerId(),
-         riskLevel,
-         rulesTriggered,
-         Instant.now(),
-         isBlocked
-     );
- }
+        if (rulesTriggered.isEmpty()) {
+            riskLevel = FraudRiskLevel.LOW;
+        } else if (rulesTriggered.contains("HIGH_AMOUNT_OVER_10K") && rulesTriggered.contains("HIGH_VALUE_WITHDRAWAL")) {
+            riskLevel = FraudRiskLevel.FRAUD;
+            isBlocked = true;
+        } else if (rulesTriggered.contains("HIGH_AMOUNT_OVER_10K") || rulesTriggered.contains("CRITICAL_BALANCE_AFTER_WITHDRAWAL")) {
+            riskLevel = FraudRiskLevel.HIGH;
+            isBlocked = true;
+        } else {
+            riskLevel = FraudRiskLevel.MEDIUM;
+        }
 
- private boolean isUnusualCountry(String customerId, String location) {
-     // Dummy: in real system fetch customer’s usual locations from DB / Redis
-     return !location.equals("Zagreb:Croatia");
- }
-
- private long countRecentTransactions(String customerId, Duration lookback) {
-     // Dummy: in real system query DB or keep a rolling window in memory / Kafka Streams
-     return 0;
- }
+        return new FraudCheckResult(
+            event.accountId(),
+            event.userId(),
+            riskLevel,
+            List.copyOf(rulesTriggered),
+            Instant.now(),
+            isBlocked
+        );
+    }
 }

@@ -1,49 +1,38 @@
 server:
- port: 8085
- 
+  port: 8085
+
 spring:
- application:
-  name: fraud-detection-service
-  
- kafka:
-  bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
-  consumer:
-   group-id: fraud-detection-service
-   key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-   value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-   auto-offset-reset: earliest
-  
- datasource:
-  url: jdbc:postgresql://localhost:5432/accountdb
-  username: postgres
-  password: password
-  driver-class-name: org.postgresql.Driver
- jpa:
-  hibernate:
-   ddl-auto: update # update # create / create-drop
-   format_sql: true
-   use_sql_comments: true
-  properties:
-   hibernate:
-    dialect: org.hibernate.dialect.PostgreSQLDialect
+  application:
+    name: fraud-detection-service
+
+  kafka:
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    consumer:
+      group-id: fraud-detection-service
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+    listener:
+      ack-mode: manual
+
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: ${EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE:http://localhost:8761/eureka/}
 
 logging:
   level:
-   org.hibernate.SQL: debug		
-   org.hibernate.orm.jdbc.bind: trace
-
-eureka:
- instance:  
-  prefer-ip-address: true		
- client:
-  register-with-eureka: true
-  fetch-registry: true
-  service-url:
-   defaultZone: http://localhost:8761/eureka/
-
+    com.miaoubich.banking: INFO
+    org.springframework.kafka: INFO
+    org.apache.kafka: WARN
 
 management:
- endpoints:
-  web:
-   exposure:
-    include: health,info
+  endpoints:
+    web:
+      exposure:
+        include: health,info

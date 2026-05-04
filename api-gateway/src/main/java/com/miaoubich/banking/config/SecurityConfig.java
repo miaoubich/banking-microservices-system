@@ -15,7 +15,7 @@ public class SecurityConfig {
 		http
 			.csrf(csrf -> csrf.disable())
 			.authorizeExchange(exchange -> exchange
-				.pathMatchers("/api/auth/register", "/api/auth/login").permitAll()
+				.pathMatchers("/api/auth/register", "/api/auth/login", "/actuator/**").permitAll()
 				.anyExchange().authenticated()
 			)
 			.oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> {}));

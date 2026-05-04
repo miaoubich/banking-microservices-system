@@ -4,5 +4,12 @@ services:
     ports:
       - "8761:8761"
     environment:
-      - EUREKA_INSTANCE_HOSTNAME=localhost
-    network_mode: host
+      - EUREKA_INSTANCE_HOSTNAME=discovery-service
+      - EUREKA_SELF_PRESERVATION=false
+    networks:
+      - banking-network
+
+networks:
+  banking-network:
+    name: banking-network
+    driver: bridge

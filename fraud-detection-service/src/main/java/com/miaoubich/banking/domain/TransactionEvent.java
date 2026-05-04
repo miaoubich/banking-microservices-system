@@ -4,14 +4,10 @@ import java.math.BigDecimal;
 import java.time.Instant;
 
 public record TransactionEvent(
- String transactionId,
- String accountId,
- String customerId,
- BigDecimal amount,
- String currency,
- String channel, // "web", "mobile", "atm", ...
- String location, // "city:country"
- Instant timestamp,
- String ip,
- String userAgent
+    String accountId,
+    String accountNumber,
+    String transactionType,
+    BigDecimal amount,
+    BigDecimal balanceAfter,
+    String userId
 ) {}

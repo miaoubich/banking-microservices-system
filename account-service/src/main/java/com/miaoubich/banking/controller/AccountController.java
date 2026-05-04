@@ -66,14 +66,16 @@ public class AccountController {
 
 	@PostMapping("/{accountId}/deposit")
 	@PreAuthorize("hasRole('client_user') or hasRole('client_admin') or hasRole('client_super')")
-	public ResponseEntity<?> deposit(@PathVariable Long accountId, @RequestBody @Valid BalanceRequest request) {
-		return ResponseEntity.ok(accountService.deposit(accountId, request));
+	public ResponseEntity<?> deposit(@PathVariable Long accountId, @RequestBody @Valid BalanceRequest request,
+			@AuthenticationPrincipal Jwt jwt) {
+		return ResponseEntity.ok(accountService.deposit(accountId, request, jwt.getSubject()));
 	}
 
 	@PostMapping("/{accountId}/withdraw")
 	@PreAuthorize("hasRole('client_user') or hasRole('client_admin') or hasRole('client_super')")
-	public ResponseEntity<?> withdraw(@PathVariable Long accountId, @RequestBody @Valid BalanceRequest request) {
-		return ResponseEntity.ok(accountService.withdraw(accountId, request));
+	public ResponseEntity<?> withdraw(@PathVariable Long accountId, @RequestBody @Valid BalanceRequest request,
+			@AuthenticationPrincipal Jwt jwt) {
+		return ResponseEntity.ok(accountService.withdraw(accountId, request, jwt.getSubject()));
 	}
 
 	@GetMapping("/{accountId}/transactions")

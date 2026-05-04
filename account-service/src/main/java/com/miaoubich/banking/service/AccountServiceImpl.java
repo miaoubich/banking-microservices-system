@@ -67,16 +67,16 @@ public class AccountServiceImpl implements AccountService {
 	}
 
 	@Transactional
-	public CreateAccountResponse deposit(Long accountId, BalanceRequest request) {
+	public CreateAccountResponse deposit(Long accountId, BalanceRequest request, String clientId) {
 		Account account = accountRepository.findById(accountId)
 				.orElseThrow(() -> new AccountNotFoundException(accountId));
+		validateAccountOwnership(account, clientId);
 		validateAccountActive(account);
 		account.setBalance(account.getBalance().add(request.getAmount()));
 		transactionRepository.save(new Transaction(account.getId(), account.getAccountNumber(), TransactionType.DEPOSIT, request.getAmount(), account.getBalance()));
 		
-		// Publish event
 		AccountTransactionEvent event = new AccountTransactionEvent(
-				account.getId().toString(), account.getAccountNumber(), "DEPOSIT", 
+				account.getId().toString(), account.getAccountNumber(), "DEPOSIT",
 				request.getAmount(), account.getBalance(), account.getClientId());
 		eventPublisherService.saveEvent("ACCOUNT_TRANSACTION", account.getId().toString(), event);
 		
@@ -85,23 +85,28 @@ public class AccountServiceImpl implements AccountService {
 	}
 
 	@Transactional
-	public CreateAccountResponse withdraw(Long accountId, BalanceRequest request) {
+	public CreateAccountResponse withdraw(Long accountId, BalanceRequest request, String clientId) {
 		Account account = accountRepository.findById(accountId)
 				.orElseThrow(() -> new AccountNotFoundException(accountId));
+		validateAccountOwnership(account, clientId);
 		validateAccountActive(account);
 		if (account.getBalance().compareTo(request.getAmount()) < 0)
 			throw new InsufficientFundsException(request.getAmount(), account.getBalance());
 		account.setBalance(account.getBalance().subtract(request.getAmount()));
 		transactionRepository.save(new Transaction(account.getId(), account.getAccountNumber(), TransactionType.WITHDRAWAL, request.getAmount(), account.getBalance()));
 		
-		// Publish event
 		AccountTransactionEvent event = new AccountTransactionEvent(
-				account.getId().toString(), account.getAccountNumber(), "WITHDRAWAL", 
+				account.getId().toString(), account.getAccountNumber(), "WITHDRAWAL",
 				request.getAmount(), account.getBalance(), account.getClientId());
 		eventPublisherService.saveEvent("ACCOUNT_TRANSACTION", account.getId().toString(), event);
 		
 		logger.info("Withdrew {} from account number {}, new balance: {}", request.getAmount(), account.getAccountNumber(), account.getBalance());
 		return accountMapper.toResponse(accountRepository.save(account));
+	}
+
+	private void validateAccountOwnership(Account account, String clientId) {
+		if (!account.getClientId().equals(clientId))
+			throw new IllegalArgumentException("Account " + account.getAccountNumber() + " does not belong to the requesting user");
 	}
 
 	private void validateAccountActive(Account account) {
@@ -118,9 +123,13 @@ public class AccountServiceImpl implements AccountService {
 	}
 
 	public String generateAccountNumber() {
-	    String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
-	    String random = String.format("%08d", new SecureRandom().nextInt(100_000_000));
-	    return timestamp + random;
+		String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+		String candidate;
+		do {
+			String random = String.format("%08d", new SecureRandom().nextInt(100_000_000));
+			candidate = timestamp + random;
+		} while (accountRepository.findByAccountNumber(candidate).isPresent());
+		return candidate;
 	}
 
 }

@@ -21,9 +21,9 @@ spring:
      enable.idempotence: true #ensure that duplicate messages are not written to the broker, even if retries occur.
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/accountdb
-    username: postgres
-    password: password
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/accountdb}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:password}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
