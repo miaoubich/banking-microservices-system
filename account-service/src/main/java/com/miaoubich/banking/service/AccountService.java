@@ -14,6 +14,7 @@ public interface AccountService {
 	CreateAccountResponse updateAccountStatus(Long accountId, AccountStatus newStatus);
 	CreateAccountResponse deposit(Long accountId, BalanceRequest request, String clientId);
 	CreateAccountResponse withdraw(Long accountId, BalanceRequest request, String clientId);
-	List<Account> getAllAccounts();
-	List<Account> getAccountsByClientId(String clientId);
+	List<CreateAccountResponse> getAllAccounts();
+	List<CreateAccountResponse> getAccountsByClientId(String clientId);
+	Account findAccountByAccountId(Long accountId);
 }

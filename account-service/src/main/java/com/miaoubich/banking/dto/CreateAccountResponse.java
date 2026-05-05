@@ -2,6 +2,7 @@ package com.miaoubich.banking.dto;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import com.miaoubich.banking.domain.AccountStatus;
 import com.miaoubich.banking.domain.AccountType;
@@ -14,13 +15,13 @@ public class CreateAccountResponse {
 	private AccountType accountType;
 	private AccountStatus accountStatus;
 	private String clientId;
-	private LocalDate createdAt;
+	private LocalDateTime createdAt;
 
 	public CreateAccountResponse() {}
 
 	public CreateAccountResponse(Long id, String accountNumber, BigDecimal balance, AccountType accountType,
-			AccountStatus accountStatus, String clientId, LocalDate createdAt) {
-		this.id = id;
+			AccountStatus accountStatus, String clientId, LocalDateTime
+ createdAt) {		this.id = id;
 		this.accountNumber = accountNumber;
 		this.balance = balance;
 		this.accountType = accountType;
@@ -77,11 +78,11 @@ public class CreateAccountResponse {
 		this.clientId = clientId;
 	}
 
-	public LocalDate getCreatedAt() {
+	public LocalDateTime getCreatedAt() {
 		return createdAt;
 	}
 
-	public void setCreatedAt(LocalDate createdAt) {
+	public void setCreatedAt(LocalDateTime createdAt) {
 		this.createdAt = createdAt;
 	}
 }

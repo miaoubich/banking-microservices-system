@@ -12,14 +12,12 @@ public class BalanceRequest {
     @DecimalMin(value = "0.01", message = "Amount must be greater than zero")
     private BigDecimal amount;
 
-    @NotBlank(message = "Idempotency key is required")
     private String idempotencyKey;
 
     public BalanceRequest() {}
 
-    public BalanceRequest(BigDecimal amount, String idempotencyKey) {
+    public BalanceRequest(BigDecimal amount) {
         this.amount = amount;
-        this.idempotencyKey = idempotencyKey;
     }
 
     public BigDecimal getAmount() { return amount; }

@@ -32,7 +32,7 @@ public class EventPublisherService {
     }
 
     @Transactional
-    public void saveEvent(String eventType, String aggregateId, Object eventData) {
+    public void saveEvent(String eventType, String aggregateId, Object eventData) {//aggregateId is accountId
         try {
             String payload = objectMapper.writeValueAsString(eventData);
             OutboxEvent event = new OutboxEvent(eventType, aggregateId, payload);
@@ -44,7 +44,7 @@ public class EventPublisherService {
         }
     }
 
-    @Scheduled(fixedDelay = 5000) // Run every 5 seconds
+    @Scheduled(fixedDelay = 5000) // Run every 5 seconds and publish an event in Kafka topic
     @Transactional
     public void publishPendingEvents() {
         List<OutboxEvent> pendingEvents = outboxEventRepository.findByProcessedFalseOrderByCreatedAtAsc();
@@ -53,7 +53,6 @@ public class EventPublisherService {
             try {
                 String topicName = "banking." + event.getEventType().toLowerCase().replace("_", "-");
                 kafkaTemplate.send(topicName, event.getAggregateId(), event.getPayload());
-                
                 event.setProcessed(true);
                 outboxEventRepository.save(event);
                 
