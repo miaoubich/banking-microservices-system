@@ -9,6 +9,9 @@ spring:
       resourceserver:
         jwt:
           issuer-uri: http://localhost:9090/realms/Maradga
+  jackson:
+   serialization:
+    write-dates-as-timestamps: false
  
   kafka:
    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
@@ -20,6 +23,15 @@ spring:
     properties:
      enable.idempotence: true #ensure that duplicate messages are not written to the broker, even if retries occur.
 
+  data:
+   redis:
+    host: localhost
+    port: 6379
+  cache:
+    type: redis
+    redis:
+     time-to-live: 600000 #in miliseconds = 10 mins
+  
   datasource:
     url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/accountdb}
     username: ${SPRING_DATASOURCE_USERNAME:postgres}

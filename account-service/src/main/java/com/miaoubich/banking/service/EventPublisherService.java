@@ -52,7 +52,9 @@ public class EventPublisherService {
         for (OutboxEvent event : pendingEvents) {
             try {
                 String topicName = "banking." + event.getEventType().toLowerCase().replace("_", "-");
-                kafkaTemplate.send(topicName, event.getAggregateId(), event.getPayload());
+                //Using get() will block the process until Kafka broker confirms the message was received
+                //.get() turns the async Kafka send into a synchronous (blocking) call.
+                kafkaTemplate.send(topicName, event.getAggregateId(), event.getPayload()).get();
                 event.setProcessed(true);
                 outboxEventRepository.save(event);
                 

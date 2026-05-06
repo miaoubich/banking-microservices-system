@@ -9,6 +9,9 @@ import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 
 import com.miaoubich.banking.constants.Constants;
@@ -47,6 +50,7 @@ public class AccountServiceImpl implements AccountService {
 	}
 
 	@Transactional
+	@Override
 	public CreateAccountResponse createAccount(CreateAccountRequest request, String clientId) {
 		Account account = accountMapper.toAccount(request);
 		account.setAccountNumber(generateAccountNumber());
@@ -59,13 +63,16 @@ public class AccountServiceImpl implements AccountService {
 
 		return accountMapper.toResponse(account);
 	}
-
+	
+	@Override
 	public List<CreateAccountResponse> getAllAccounts() {
 		return accountRepository.findAll().stream()
 				.map(accountMapper::toResponse)
 				.toList();
 	}
 
+	@Override
+	@Cacheable(value = "accounts", key = "#clientId")
 	public List<CreateAccountResponse> getAccountsByClientId(String clientId) {
 		return accountRepository.findByClientId(clientId).stream()
 				.map(accountMapper::toResponse)
@@ -73,6 +80,11 @@ public class AccountServiceImpl implements AccountService {
 	}
 
 	@Transactional
+	@Override
+	@Caching(evict = {
+			@CacheEvict(value = "accountById", key = "#accountId"),
+			@CacheEvict(value = "accountByClient", key = "#clientId")
+			})
 	public CreateAccountResponse deposit(Long accountId, BalanceRequest request, String clientId) {
 		Account account = findAccountByAccountId(accountId);
 		validateAccountOwnership(account, clientId);
@@ -86,6 +98,7 @@ public class AccountServiceImpl implements AccountService {
 				request.getAmount(),
 				account.getBalance(),
 				UUID.randomUUID().toString()));
+		Account savedAccount = accountRepository.save(account);
 
 		AccountTransactionEvent event = new AccountTransactionEvent(
 				account.getId().toString(), account.getAccountNumber(), Constants.DEPOSIT,
@@ -93,10 +106,15 @@ public class AccountServiceImpl implements AccountService {
 		eventPublisherService.saveEvent(Constants.ACCOUNT_TRANSACTION, account.getId().toString(), event);
 
 		logger.info("Deposited {} to account {}, new balance: {}", request.getAmount(), account.getAccountNumber(), account.getBalance());
-		return accountMapper.toResponse(accountRepository.save(account));
+		return accountMapper.toResponse(savedAccount);
 	}
 
 	@Transactional
+	@Override
+	@Caching(evict = {
+		@CacheEvict(value = "accountById", key = "#accountId"),
+		@CacheEvict(value = "accountByClient", key = "#clientId")
+		})
 	public CreateAccountResponse withdraw(Long accountId, BalanceRequest request, String clientId) {
 		Account account = findAccountByAccountId(accountId);
 		validateAccountOwnership(account, clientId);
@@ -130,6 +148,8 @@ public class AccountServiceImpl implements AccountService {
 			throw new IllegalArgumentException("Duplicate transaction: same amount and type submitted within 30 seconds");
 	}
 
+	@Override
+	@Cacheable(value= "accounts", key = "#accountId")
 	public Account findAccountByAccountId(Long accountId) {
 		return accountRepository.findById(accountId)
 				.orElseThrow(() -> new AccountNotFoundException(accountId));
@@ -156,10 +176,16 @@ public class AccountServiceImpl implements AccountService {
 	}
 	
 	@Transactional
+	@Override
+	@CacheEvict(value ="accounts", key = "#id")
 	public CreateAccountResponse updateAccountStatus(Long accountId, AccountStatus newStatus) {
 		Account account = findAccountByAccountId(accountId);
 		account.setAccountStatus(newStatus);
 		logger.info("Updating account number {} status to {}", account.getAccountNumber(), newStatus);
 		return accountMapper.toResponse(accountRepository.save(account));
 	}
+	
+	@CacheEvict(value = "users", allEntries = true)
+	public void clearUsersCache() {}
+
 }
