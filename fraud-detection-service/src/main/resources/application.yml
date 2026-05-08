@@ -5,8 +5,28 @@ spring:
   application:
     name: fraud-detection-service
 
+  security:
+    oauth2:
+      client:
+        registration:
+          keycloak:
+            client-id: banking-system
+            client-secret: ${KEYCLOAK_CLIENT_SECRET}
+            authorization-grant-type: client_credentials
+            scope: openid
+        provider:
+          keycloak:
+            token-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:9090/realms/Maradga}/protocol/openid-connect/token
+
+  cloud:
+   openfeign:
+    okhttp:
+     enabled: true
+
   kafka:
     bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    template:
+      default-topic: banking.account-transaction
     consumer:
       group-id: fraud-detection-service
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
@@ -24,6 +44,10 @@ eureka:
     fetch-registry: true
     service-url:
       defaultZone: ${EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE:http://localhost:8761/eureka/}
+
+internal:
+  service:
+    secret: ${INTERNAL_SERVICE_SECRET:banking-internal-secret}
 
 logging:
   level:

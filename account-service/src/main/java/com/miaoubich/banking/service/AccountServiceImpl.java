@@ -177,7 +177,7 @@ public class AccountServiceImpl implements AccountService {
 	
 	@Transactional
 	@Override
-	@CacheEvict(value ="accounts", key = "#id")
+	@CacheEvict(value = "accounts", key = "#accountId")
 	public CreateAccountResponse updateAccountStatus(Long accountId, AccountStatus newStatus) {
 		Account account = findAccountByAccountId(accountId);
 		account.setAccountStatus(newStatus);

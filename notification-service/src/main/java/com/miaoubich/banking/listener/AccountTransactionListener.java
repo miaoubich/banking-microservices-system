@@ -37,7 +37,7 @@ public class AccountTransactionListener {
 
             //Set 'enable-auto-commit: false' in 'yml file'
             // commit and move the offset to upper number only if the event is delivered otherwise 
-            // ack is NOT called → Kafka will redeliver this message on restart
+            // ack is NOT called → Kafka will re-deliver this message on restart
             ack.acknowledge();
         } catch (Exception e) {
             logger.error("❌ Failed to process account transaction event: {}", message, e);

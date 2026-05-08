@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 
 import jakarta.validation.Valid;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -38,6 +40,9 @@ public class AccountController {
 
 	private final AccountService accountService;
 	private final TransactionService transactionService;
+
+	@Value("${internal.service.secret:banking-internal-secret}")
+	private String internalSecret;
 
 	public AccountController(AccountService accountService, TransactionService transactionService) {
 		this.accountService = accountService;
