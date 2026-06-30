@@ -35,26 +35,26 @@ public class UserController {
 
 	@GetMapping("/{id}")
 	@PreAuthorize("hasRole('client_super') or hasRole('client_admin')")
-	public ResponseEntity<User> findUserById(@PathVariable Long id) {
+	public ResponseEntity<User> findUserById(@PathVariable long id) {
 		return ResponseEntity.ok(userService.findUserById(id));
 	}
 
 	@PutMapping("/{id}")
 	@PreAuthorize("hasRole('client_super') or hasRole('client_admin')")
-	public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User updatedUser) {
+	public ResponseEntity<User> updateUser(@PathVariable long id, @RequestBody User updatedUser) {
 		return ResponseEntity.ok(userService.updateUser(id, updatedUser));
 	}
 	
 	@PatchMapping("/{id}/password")
 	@PreAuthorize("hasRole('client_super') or hasRole('client_admin')")
-	public ResponseEntity<String> updateUserPassword(@PathVariable Long id, @RequestBody UpdatePasswordRequest request) {
+	public ResponseEntity<String> updateUserPassword(@PathVariable long id, @RequestBody UpdatePasswordRequest request) {
 		userService.updateUserPasswordByUserId(id, request);
 		return ResponseEntity.ok("Password updated successfully");
 	}
 
 	@DeleteMapping("/{id}")
 	@PreAuthorize("hasRole('client_super')")
-	public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
+	public ResponseEntity<Void> deleteUser(@PathVariable long id) {
 		userService.deleteUser(id);
 		return ResponseEntity.noContent().build();
 	}

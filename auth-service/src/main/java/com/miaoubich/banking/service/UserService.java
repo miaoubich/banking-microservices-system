@@ -7,9 +7,9 @@ import com.miaoubich.banking.dto.UpdatePasswordRequest;
 
 public interface UserService {
 
-	User findUserById(Long id);
-	User updateUser(Long id, User updatedUser);
-	void deleteUser(Long id);
+	User findUserById(long id);
+	User updateUser(long id, User updatedUser);
+	void deleteUser(long id);
 	List<User> findAllUsers();
-	void updateUserPasswordByUserId(Long userId, UpdatePasswordRequest request);
+	void updateUserPasswordByUserId(long userId, UpdatePasswordRequest request);
 }

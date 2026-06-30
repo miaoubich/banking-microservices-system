@@ -2,50 +2,31 @@ package com.miaoubich.banking.domain;
 
 import java.time.LocalDateTime;
 
-import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-
-@Entity
-@Table(name = "users")
+@Document(collection = "users")
 public class User implements java.io.Serializable {
 
 	private static final long serialVersionUID = 1L;
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+	private String id;
 
-	@Column(nullable = false)
 	private String firstName;
-
-	@Column(nullable = false)
 	private String lastName;
-	
-	@Column(nullable = false)
 	private String username;
 
-	@Column(nullable = false, unique = true)
+	@Indexed(unique = true)
 	private String email;
 
-	@Column(nullable = false)
 	private String phone;
-
-	@Column(nullable = false)
 	private String keycloakId;
-
-	@Enumerated(EnumType.STRING)
-	@Column(nullable = false)
 	private UserRole role;
 
-	@CreationTimestamp
+	@CreatedDate
 	private LocalDateTime createdAt;
 
 	public User() {}
@@ -60,7 +41,7 @@ public class User implements java.io.Serializable {
 		this.role = role;
 	}
 
-	public Long getId() {
+	public String getId() {
 		return id;
 	}
 

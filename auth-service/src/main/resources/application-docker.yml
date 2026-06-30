@@ -5,13 +5,9 @@ spring:
   application:
     name: auth-service
 
-  datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/userdb}
-    username: ${SPRING_DATASOURCE_USERNAME:postgres}
-    password: ${SPRING_DATASOURCE_PASSWORD:password}
-    driver-class-name: org.postgresql.Driver
-
   data:
+    mongodb:
+      uri: ${SPRING_DATA_MONGODB_URI:mongodb://localhost:27017/userdb}
     redis:
       host: ${SPRING_REDIS_HOST:localhost}
       port: ${SPRING_REDIS_PORT:6379}
@@ -26,16 +22,6 @@ spring:
     type: redis
     redis:
       time-to-live: 600000
-
-  jpa:
-    hibernate:
-      ddl-auto: update
-      format_sql: true
-      use_sql_comments: true
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
-    show-sql: true
 
 keycloak:
   server-url: http://localhost:9090
@@ -66,7 +52,5 @@ management:
 
 logging:
   level:
-    org.hibernate.SQL: debug
-    org.hibernate.orm.jdbc.bind: trace
     org.springframework.security: DEBUG
     com.miaoubich.banking: DEBUG

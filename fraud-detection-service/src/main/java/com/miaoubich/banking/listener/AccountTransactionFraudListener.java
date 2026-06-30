@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Component;
@@ -63,7 +62,8 @@ public class AccountTransactionFraudListener {
                     logger.error("❌ Failed to suspend account {}: {}", event.accountId(), e.getMessage());
                 }
             }
-
+            //manually commits the Kafka message offset back to the broker, telling it 
+            // "this message has been successfully processed."
             ack.acknowledge();
         } catch (Exception e) {
             logger.error("❌ Failed to process account transaction event for fraud: {}", message, e);

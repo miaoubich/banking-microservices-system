@@ -20,7 +20,6 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
@@ -61,7 +60,6 @@ public class AuthServiceImpl implements AuthService {
 	}
 
 	@Override
-	@Transactional
 	public void register(RegisterRequest request) {
 		if (userRepository.existsByEmail(request.getEmail())) {
 			throw new RuntimeException("Email already registered: " + request.getEmail());

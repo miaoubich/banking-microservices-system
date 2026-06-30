@@ -11,7 +11,6 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.miaoubich.banking.domain.User;
 import com.miaoubich.banking.dto.UpdatePasswordRequest;
@@ -36,15 +35,14 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	@Cacheable(value = "users", key = "#id")
-	public User findUserById(Long id) {
+	public User findUserById(long id) {
 		return userRepository.findById(id)
 				.orElseThrow(() -> new UserNotFoundException(id));
 	}
 
 	@Override
-	@Transactional
 	@CachePut(value = "users", key = "#id")
-	public User updateUser(Long id, User updatedUser) {
+	public User updateUser(long id, User updatedUser) {
 		User existingUser = userRepository.findById(id)
 				.orElseThrow(() -> new UserNotFoundException(id));
 		existingUser.setFirstName(updatedUser.getFirstName());
@@ -54,9 +52,8 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	@Transactional
 	@CacheEvict(value = "users", key = "#id")
-	public void deleteUser(Long id) {
+	public void deleteUser(long id) {
 		User user = userRepository.findById(id)
 				.orElseThrow(() -> new UserNotFoundException(id));
 		keycloak.realm(realm).users().delete(user.getKeycloakId());
@@ -70,7 +67,7 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public void updateUserPasswordByUserId(Long userId, UpdatePasswordRequest request) {
+	public void updateUserPasswordByUserId(long userId, UpdatePasswordRequest request) {
 		User user = userRepository.findById(userId)
 				.orElseThrow(() -> new UserNotFoundException(userId));
 

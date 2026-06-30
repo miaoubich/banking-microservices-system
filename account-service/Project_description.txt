@@ -1,0 +1,48 @@
+This is a Java Spring Boot microservices-based banking system. Here's a breakdown:
+
+Architecture Overview
+It's a distributed banking backend composed of 8 independent services, all containerized with Docker and orchestrated via Docker Compose.
+
+Infrastructure Services
+discovery-service — Netflix Eureka server. All other services register here so they can discover each other by name instead of hardcoded IPs. Runs in 2 instances (eureka-1, eureka-2) for HA.
+
+api-gateway — Single entry point for all client requests. Handles JWT validation (via Keycloak) before forwarding to downstream services. Runs in 2 instances behind an Nginx load balancer on port 80.
+
+Business Services
+auth-service — Manages authentication with Keycloak (OAuth2/JWT). Has AuthController (login/register) and UserController (CRUD on users). Uses Redis for caching user data (@Cacheable) and PostgreSQL for persistence. Has a UserSyncJob for syncing users between Keycloak and the local DB.
+
+account-service — The most developed business service. Manages bank accounts and local transactions (deposits/withdrawals/transfers). Notable patterns:
+
+Publishes Kafka events (AccountCreatedEvent, AccountTransactionEvent)
+
+Uses the Transactional Outbox pattern (OutboxEvent + OutboxEventRepository) to guarantee reliable Kafka publishing
+
+Redis caching + PostgreSQL
+
+Runs 2 instances
+
+transaction-service — Currently a skeleton (only has the main application class). Likely meant to be a dedicated service for cross-account transfers.
+
+fraud-detection-service — Consumes Kafka transaction events via AccountTransactionFraudListener, runs fraud scoring logic in FraudDetectionService, and calls back account-service via a Feign HTTP client (AccountServiceClient) to take action on suspicious transactions.
+
+notification-service — Pure Kafka consumer (AccountTransactionListener). No REST API — just listens to events and sends notifications. Runs 2 instances.
+
+reporting-service — Currently a skeleton. Intended for aggregated reports and statements.
+
+Shared Infrastructure
+Component	Role
+PostgreSQL	Persistent storage (account-service, auth-service)
+Apache Kafka + Zookeeper	Async event bus between services
+Redis	Caching layer (auth-service, account-service)
+Keycloak	OAuth2 Authorization Server
+Nginx	Load balancer in front of the two API Gateway instances
+Key Patterns Used
+Transactional Outbox (account-service) — prevents lost Kafka events during DB transactions
+
+Event-driven architecture — services communicate via Kafka topics, not direct HTTP calls
+
+Service discovery — Eureka eliminates hardcoded service URLs
+
+API Gateway — cross-cutting concerns (auth, routing) centralized in one place
+
+Caching — Redis reduces DB load for frequently read data like users and accounts
