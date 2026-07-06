@@ -39,6 +39,7 @@ import com.miaoubich.banking.service.UserService;
 /*
  * Integration test for UserController using MockMvc to simulate HTTP requests and verify responses.
  */
+@SuppressWarnings("null")
 @WebMvcTest(UserController.class)
 @EnableMethodSecurity(prePostEnabled = true)
 @Import(com.miaoubich.banking.exception.GlobalExceptionHandler.class)
@@ -92,7 +93,7 @@ class UserControllerTest {
 
     @Test
     void findUserById_returnsUser_whenClientSuper() throws Exception {
-        when(userService.findUserById(1L)).thenReturn(user);
+        when(userService.findUserById("1")).thenReturn(user);
 
         mockMvc.perform(get("/api/users/1")
                         .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_client_super"))))
@@ -103,7 +104,7 @@ class UserControllerTest {
 
     @Test
     void findUserById_returnsUser_whenClientAdmin() throws Exception {
-        when(userService.findUserById(1L)).thenReturn(user);
+        when(userService.findUserById("1")).thenReturn(user);
 
         mockMvc.perform(get("/api/users/1")
                         .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_client_admin"))))
@@ -112,7 +113,7 @@ class UserControllerTest {
 
     @Test
     void findUserById_returnsNotFound_whenUserDoesNotExist() throws Exception {
-        when(userService.findUserById(99L)).thenThrow(new UserNotFoundException(99L));
+        when(userService.findUserById("99")).thenThrow(new UserNotFoundException("99"));
 
         mockMvc.perform(get("/api/users/99")
                         .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_client_super"))))
@@ -131,7 +132,7 @@ class UserControllerTest {
 
     @Test
     void updateUser_returnsUpdatedUser_whenClientSuper() throws Exception {
-        when(userService.updateUser(eq(1L), any(User.class))).thenReturn(user);
+        when(userService.updateUser(eq("1"), any(User.class))).thenReturn(user);
 
         mockMvc.perform(put("/api/users/1")
                         .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_client_super")))
@@ -164,7 +165,7 @@ class UserControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().string("Password updated successfully"));
 
-        verify(userService).updateUserPasswordByUserId(eq(1L), any(UpdatePasswordRequest.class));
+        verify(userService).updateUserPasswordByUserId(eq("1"), any(UpdatePasswordRequest.class));
     }
 
     @Test
@@ -196,7 +197,7 @@ class UserControllerTest {
                         .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_client_super"))))
                 .andExpect(status().isNoContent());
 
-        verify(userService).deleteUser(1L);
+        verify(userService).deleteUser("1");
     }
 
     @Test

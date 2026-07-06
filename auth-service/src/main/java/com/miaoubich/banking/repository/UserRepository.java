@@ -6,7 +6,7 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 
 import com.miaoubich.banking.domain.User;
 
-public interface UserRepository extends MongoRepository<User, Long> {
+public interface UserRepository extends MongoRepository<User, String> {
 
 	Optional<User> findByEmail(String email);
 	boolean existsByEmail(String email);

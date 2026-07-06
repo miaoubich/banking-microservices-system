@@ -57,23 +57,23 @@ class UserServiceImplTest {
     void setUp() {
         ReflectionTestUtils.setField(userService, "realm", "test-realm");
         user = new User("Ali", "Bouzar", "miaoubich", "miaoubich@example.com", "0123456789", "kc-uuid-123", UserRole.client_user);
-        ReflectionTestUtils.setField(user, "id", 1L);
+        ReflectionTestUtils.setField(user, "id", "1");
     }
 
     @Test
     void findUserById_returnsUser_whenExists() {
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(userRepository.findById("1")).thenReturn(Optional.of(user));
 
-        User result = userService.findUserById(1L);
+        User result = userService.findUserById("1");
 
         assertThat(result).isEqualTo(user);
     }
 
     @Test
     void findUserById_throwsUserNotFoundException_whenNotFound() {
-        when(userRepository.findById(99L)).thenReturn(Optional.empty());
+        when(userRepository.findById("99")).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> userService.findUserById(99L))
+        assertThatThrownBy(() -> userService.findUserById("99"))
                 .isInstanceOf(UserNotFoundException.class)
                 .hasMessageContaining("99");
     }
@@ -90,10 +90,10 @@ class UserServiceImplTest {
     @Test
     void updateUser_updatesFieldsAndSaves() {
         User updatedData = new User("Jane", "Smith", "janesmith", "jane@example.com", "0987654321", "kc-uuid-123", UserRole.client_user);
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(userRepository.findById("1")).thenReturn(Optional.of(user));
         when(userRepository.save(user)).thenReturn(user);
 
-        User result = userService.updateUser(1L, updatedData);
+        User result = userService.updateUser("1", updatedData);
 
         assertThat(result.getFirstName()).isEqualTo("Jane");
         assertThat(result.getLastName()).isEqualTo("Smith");
@@ -103,30 +103,30 @@ class UserServiceImplTest {
 
     @Test
     void updateUser_throwsUserNotFoundException_whenNotFound() {
-        when(userRepository.findById(99L)).thenReturn(Optional.empty());
+        when(userRepository.findById("99")).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> userService.updateUser(99L, user))
+        assertThatThrownBy(() -> userService.updateUser("99", user))
                 .isInstanceOf(UserNotFoundException.class)
                 .hasMessageContaining("99");
     }
 
     @Test
     void deleteUser_deletesFromKeycloakAndDb() {
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(userRepository.findById("1")).thenReturn(Optional.of(user));
         when(keycloak.realm("test-realm")).thenReturn(realmResource);
         when(realmResource.users()).thenReturn(usersResource);
 
-        userService.deleteUser(1L);
+        userService.deleteUser("1");
 
         verify(usersResource).delete("kc-uuid-123");
-        verify(userRepository).deleteById(1L);
+        verify(userRepository).deleteById("1");
     }
 
     @Test
     void deleteUser_throwsUserNotFoundException_whenNotFound() {
-        when(userRepository.findById(99L)).thenReturn(Optional.empty());
+        when(userRepository.findById("99")).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> userService.deleteUser(99L))
+        assertThatThrownBy(() -> userService.deleteUser("99"))
                 .isInstanceOf(UserNotFoundException.class)
                 .hasMessageContaining("99");
 
@@ -138,12 +138,12 @@ class UserServiceImplTest {
         UpdatePasswordRequest request = new UpdatePasswordRequest();
         request.setNewPassword("newSecret123");
 
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(userRepository.findById("1")).thenReturn(Optional.of(user));
         when(keycloak.realm("test-realm")).thenReturn(realmResource);
         when(realmResource.users()).thenReturn(usersResource);
         when(usersResource.get("kc-uuid-123")).thenReturn(userResource);
 
-        userService.updateUserPasswordByUserId(1L, request);
+        userService.updateUserPasswordByUserId("1", request);
 
         verify(userResource).resetPassword(argThat(cred ->
                 cred.getValue().equals("newSecret123") &&
@@ -154,9 +154,9 @@ class UserServiceImplTest {
 
     @Test
     void updateUserPassword_throwsUserNotFoundException_whenNotFound() {
-        when(userRepository.findById(99L)).thenReturn(Optional.empty());
+        when(userRepository.findById("99")).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> userService.updateUserPasswordByUserId(99L, new UpdatePasswordRequest()))
+        assertThatThrownBy(() -> userService.updateUserPasswordByUserId("99", new UpdatePasswordRequest()))
                 .isInstanceOf(UserNotFoundException.class)
                 .hasMessageContaining("99");
 

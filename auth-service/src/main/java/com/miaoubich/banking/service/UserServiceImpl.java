@@ -35,14 +35,14 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	@Cacheable(value = "users", key = "#id")
-	public User findUserById(long id) {
+	public User findUserById(String id) {
 		return userRepository.findById(id)
 				.orElseThrow(() -> new UserNotFoundException(id));
 	}
 
 	@Override
 	@CachePut(value = "users", key = "#id")
-	public User updateUser(long id, User updatedUser) {
+	public User updateUser(String id, User updatedUser) {
 		User existingUser = userRepository.findById(id)
 				.orElseThrow(() -> new UserNotFoundException(id));
 		existingUser.setFirstName(updatedUser.getFirstName());
@@ -53,7 +53,7 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	@CacheEvict(value = "users", key = "#id")
-	public void deleteUser(long id) {
+	public void deleteUser(String id) {
 		User user = userRepository.findById(id)
 				.orElseThrow(() -> new UserNotFoundException(id));
 		keycloak.realm(realm).users().delete(user.getKeycloakId());
@@ -67,7 +67,7 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public void updateUserPasswordByUserId(long userId, UpdatePasswordRequest request) {
+	public void updateUserPasswordByUserId(String userId, UpdatePasswordRequest request) {
 		User user = userRepository.findById(userId)
 				.orElseThrow(() -> new UserNotFoundException(userId));
 
